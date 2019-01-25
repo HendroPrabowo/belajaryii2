@@ -26,7 +26,7 @@ class Kelas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_kelas', 'kelas'], 'required'],
+            [['kelas'], 'required'],
             [['id_kelas'], 'integer'],
             [['kelas'], 'string', 'max' => 200],
             [['id_kelas'], 'unique'],
