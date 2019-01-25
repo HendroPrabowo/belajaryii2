@@ -10,6 +10,7 @@ $this->title = 'My Yii Application';
     <ul>
         <li><?= Html::a('Pelajaran', ['pelajaran/index']) ?></li>
         <li><?= Html::a('Kelas', ['kelas/index']) ?></li>
+        <li><?= Html::a('Siswa', ['siswa/index']) ?></li>
     </ul>
 
 </div>

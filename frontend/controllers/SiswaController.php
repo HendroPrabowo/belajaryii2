@@ -3,18 +3,17 @@
 namespace frontend\controllers;
 
 use Yii;
-use app\models\Pelajaran;
-use app\models\search\PelajaranSearch;
+use app\models\Siswa;
+use app\models\search\SiswaSearch;
 use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 
 /**
- * PelajaranController implements the CRUD actions for Pelajaran model.
+ * SiswaController implements the CRUD actions for Siswa model.
  */
-class PelajaranController extends Controller
+class SiswaController extends Controller
 {
     /**
      * @inheritdoc
@@ -48,12 +47,12 @@ class PelajaranController extends Controller
     }
 
     /**
-     * Lists all Pelajaran models.
+     * Lists all Siswa models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new PelajaranSearch();
+        $searchModel = new SiswaSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -63,7 +62,7 @@ class PelajaranController extends Controller
     }
 
     /**
-     * Displays a single Pelajaran model.
+     * Displays a single Siswa model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -76,29 +75,25 @@ class PelajaranController extends Controller
     }
 
     /**
-     * Creates a new Pelajaran model.
+     * Creates a new Siswa model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        if(Yii::$app->user->can('create-pelajaran')){
-            $model = new Pelajaran();
+        $model = new Siswa();
 
-            if ($model->load(Yii::$app->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
-
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }else{
-            throw new ForbiddenHttpException;
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
         }
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
 
     /**
-     * Updates an existing Pelajaran model.
+     * Updates an existing Siswa model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -118,7 +113,7 @@ class PelajaranController extends Controller
     }
 
     /**
-     * Deletes an existing Pelajaran model.
+     * Deletes an existing Siswa model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -132,15 +127,15 @@ class PelajaranController extends Controller
     }
 
     /**
-     * Finds the Pelajaran model based on its primary key value.
+     * Finds the Siswa model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Pelajaran the loaded model
+     * @return Siswa the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Pelajaran::findOne($id)) !== null) {
+        if (($model = Siswa::findOne($id)) !== null) {
             return $model;
         }
 
