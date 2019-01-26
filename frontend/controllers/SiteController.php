@@ -1,8 +1,10 @@
 <?php
 namespace frontend\controllers;
 
+use app\models\AuthItem;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -151,6 +153,10 @@ class SiteController extends Controller
     public function actionSignup()
     {
         $model = new SignupForm();
+        $authItems = AuthItem::find()->all();
+
+        $authItemsArray = ArrayHelper::map($authItems, 'name', 'name');
+
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
                 if (Yii::$app->getUser()->login($user)) {
@@ -161,6 +167,7 @@ class SiteController extends Controller
 
         return $this->render('signup', [
             'model' => $model,
+            'authItemsArray' => $authItemsArray,
         ]);
     }
 
@@ -210,6 +217,13 @@ class SiteController extends Controller
 
         return $this->render('resetPassword', [
             'model' => $model,
+        ]);
+    }
+
+    public function actionForbiddenError(){
+        return $this->render('error', [
+            'name' => 'Forbidden',
+            'message' => 'Akun anda dilarang untuk memasuki fungsi ini',
         ]);
     }
 }

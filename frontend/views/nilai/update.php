@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Nilai */
 
-$this->title = 'Update Nilai: {nameAttribute}';
+$this->title = 'Update Nilai: '.$model->nama;
 $this->params['breadcrumbs'][] = ['label' => 'Nilai', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';

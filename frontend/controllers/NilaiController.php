@@ -7,9 +7,11 @@ use Yii;
 use app\models\Nilai;
 use app\models\search\NilaiSearch;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
+use yii\filters\AccessControl;
 
 /**
  * NilaiController implements the CRUD actions for Nilai model.
@@ -26,6 +28,22 @@ class NilaiController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'view', 'create', 'update', 'delete', 'import'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'import'],
+                        'roles' => ['@'],
+                    ],
                 ],
             ],
         ];
@@ -83,40 +101,44 @@ class NilaiController extends Controller
 
     public function actionImport()
     {
-        $model = new Nilai();
+        if(Yii::$app->user->can('import-nilai')){
+            $model = new Nilai();
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->file = UploadedFile::getInstance($model, 'file');
-            if($model->file){
-                $filePath = 'uploads/excel';
-                $fileImport = $filePath . rand(1, 100) . '-' . str_replace('', '-', $model->file->name);
-                $bulkInsertArray = array();
-                $uploadExists = 1;
-            }
-            if($uploadExists){
-                $model->file->saveAs($fileImport);
-
-                $spreadsheet = IOFactory::load($fileImport);
-                $sheetData = $spreadsheet->getActiveSheet()->toArray();
-                $i = 0;
-                foreach ($sheetData as $data){
-                    $bulkInsertArray[] = [
-                        'nama'      => $sheetData[$i][0],
-                        'nilai'     => $sheetData[$i][1],
-                    ];
-                    $i++;
+            if ($model->load(Yii::$app->request->post())) {
+                $model->file = UploadedFile::getInstance($model, 'file');
+                if($model->file){
+                    $filePath = 'uploads/excel';
+                    $fileImport = $filePath . rand(1, 100) . '-' . str_replace('', '-', $model->file->name);
+                    $bulkInsertArray = array();
+                    $uploadExists = 1;
                 }
+                if($uploadExists){
+                    $model->file->saveAs($fileImport);
 
-                $tableName = 'nilai';
-                $columnNameArray = ['nama', 'nilai'];
-                Yii::$app->db->createCommand()->batchInsert($tableName, $columnNameArray, $bulkInsertArray)->execute();
+                    $spreadsheet = IOFactory::load($fileImport);
+                    $sheetData = $spreadsheet->getActiveSheet()->toArray();
+                    $i = 0;
+                    foreach ($sheetData as $data){
+                        $bulkInsertArray[] = [
+                            'nama'      => $sheetData[$i][0],
+                            'nilai'     => $sheetData[$i][1],
+                        ];
+                        $i++;
+                    }
+
+                    $tableName = 'nilai';
+                    $columnNameArray = ['nama', 'nilai'];
+                    Yii::$app->db->createCommand()->batchInsert($tableName, $columnNameArray, $bulkInsertArray)->execute();
+                }
+                Yii::$app->session->setFlash('success', 'Upload Excel Success');
+                return $this->actionIndex();
+            }else{
+                return $this->render('import', [
+                    'model' => $model,
+                ]);
             }
-
-            return $this->actionIndex();
         }else{
-            return $this->render('import', [
-                'model' => $model,
-            ]);
+            return $this->redirect(['site/forbidden-error']);
         }
     }
 

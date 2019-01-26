@@ -33,7 +33,7 @@ class SiswaController extends Controller
             ],
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['index', 'view', 'create', 'update', 'delete'],
+                'only' => ['index', 'view', 'create', 'update', 'delete', 'import'],
                 'rules' => [
                     [
                         'allow' => true,
@@ -42,7 +42,7 @@ class SiswaController extends Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'import'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -101,28 +101,29 @@ class SiswaController extends Controller
      */
     public function actionImport()
     {
-        $model = new Siswa();
+        if(Yii::$app->user->can('import-siswa')){
+            $model = new Siswa();
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->file = UploadedFile::getInstance($model, 'file');
-            $uploadExsist = 0;
-            if($model->file) {
-                $filePath = 'uploads/csv';
-                $model->file_import = $filePath . rand(1, 100) . '-' . str_replace('', '-', $model->file->name);
+            if ($model->load(Yii::$app->request->post())) {
+                $model->file = UploadedFile::getInstance($model, 'file');
+                $uploadExsist = 0;
+                if($model->file) {
+                    $filePath = 'uploads/csv';
+                    $model->file_import = $filePath . rand(1, 100) . '-' . str_replace('', '-', $model->file->name);
 
-                $bulkInsertArray = array();
+                    $bulkInsertArray = array();
 //                $random_date = Yii::$app->formatter->asDatetime(date("dmyyhis"), "php:dmYHis");
 //                $random = $random_date . rand(10, 100);
 //                $userId = \Yii::$app->user->identity->getId();
 //                $now = new Expression('NOW()');
-                $uploadExsist = 1;
-            }
-            if($uploadExsist){
-                $model->file->saveAs($model->file_import);
-                $handle = fopen($model->file_import, 'r');
-                if($handle){
+                    $uploadExsist = 1;
+                }
+                if($uploadExsist){
+                    $model->file->saveAs($model->file_import);
+                    $handle = fopen($model->file_import, 'r');
+                    if($handle){
 
-                    // Jika bisa di save dulu
+                        // Jika bisa di save dulu
 //                    if($model->save()){
 //                        while (($line = fgetcsv($handle, 1000, ",")) != FALSE){
 //                            $bulkInsertArray[] = [
@@ -133,29 +134,32 @@ class SiswaController extends Controller
 //                        }
 //                    }
 
-                    /*
-                     * Cara memakai fgetcsv
-                     * fgetcsv($handle, panjang_semua_karakter_dari_semua_kolom_dalam_satu_baris, delimiter)
-                     */
-                    while (($line = fgetcsv($handle, 2000, ",")) != FALSE){
-                        $bulkInsertArray[] = [
-                            'nama'              => $line[0],
-                            'jenis_kelamin'     => $line[1],
-                            'agama'             => $line[2],
-                        ];
-                    }
+                        /*
+                         * Cara memakai fgetcsv
+                         * fgetcsv($handle, panjang_semua_karakter_dari_semua_kolom_dalam_satu_baris, delimiter)
+                         */
+                        while (($line = fgetcsv($handle, 2000, ",")) != FALSE){
+                            $bulkInsertArray[] = [
+                                'nama'              => $line[0],
+                                'jenis_kelamin'     => $line[1],
+                                'agama'             => $line[2],
+                            ];
+                        }
 
-                    fclose($handle);
-                    $tableName = 'siswa';
-                    $columnNameArray = ['nama', 'jenis_kelamin', 'agama'];
-                    Yii::$app->db->createCommand()->batchInsert($tableName, $columnNameArray, $bulkInsertArray)->execute();
+                        fclose($handle);
+                        $tableName = 'siswa';
+                        $columnNameArray = ['nama', 'jenis_kelamin', 'agama'];
+                        Yii::$app->db->createCommand()->batchInsert($tableName, $columnNameArray, $bulkInsertArray)->execute();
+                    }
                 }
+                return $this->actionIndex();
+            }else{
+                return $this->render('import', [
+                    'model' => $model,
+                ]);
             }
-            return $this->actionIndex();
         }else{
-            return $this->render('import', [
-                'model' => $model,
-            ]);
+            return $this->redirect(['site/forbidden-error']);
         }
     }
 
