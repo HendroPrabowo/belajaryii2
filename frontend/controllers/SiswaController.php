@@ -111,7 +111,7 @@ class SiswaController extends Controller
                 $model->file_import = $filePath . rand(1, 100) . '-' . str_replace('', '-', $model->file->name);
 
                 $bulkInsertArray = array();
-                $random_date = Yii::$app->formatter->asDatetime(date("dmyyhis"), "php:dmYHis");
+//                $random_date = Yii::$app->formatter->asDatetime(date("dmyyhis"), "php:dmYHis");
 //                $random = $random_date . rand(10, 100);
 //                $userId = \Yii::$app->user->identity->getId();
 //                $now = new Expression('NOW()');
