@@ -11,9 +11,11 @@ use Yii;
  * @property string $nama
  * @property string $jenis_kelamin
  * @property string $agama
+ * @property string $file_import
  */
 class Siswa extends \yii\db\ActiveRecord
 {
+    public $file;
     /**
      * @inheritdoc
      */
@@ -30,6 +32,7 @@ class Siswa extends \yii\db\ActiveRecord
         return [
             [['nama', 'jenis_kelamin', 'agama'], 'required'],
             [['nama', 'jenis_kelamin', 'agama'], 'string', 'max' => 255],
+            [['file_import'], 'string', 'max' => 500],
         ];
     }
 
@@ -39,10 +42,12 @@ class Siswa extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
+            'file' => 'CSV',
             'id' => 'ID',
             'nama' => 'Nama',
             'jenis_kelamin' => 'Jenis Kelamin',
             'agama' => 'Agama',
+            'file_import' => 'File Import',
         ];
     }
 }

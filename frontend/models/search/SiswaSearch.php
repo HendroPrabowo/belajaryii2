@@ -19,6 +19,7 @@ class SiswaSearch extends Siswa
     {
         return [
             [['id'], 'integer'],
+            [['file_import'], 'string'],
             [['nama', 'jenis_kelamin', 'agama'], 'safe'],
         ];
     }
